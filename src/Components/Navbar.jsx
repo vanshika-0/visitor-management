@@ -1,5 +1,6 @@
 import React from 'react'
 import { IoIosArrowDown } from "react-icons/io";
+import { NavLink } from 'react-router-dom'
 
 const Navbar = () => {
   return (
@@ -9,10 +10,10 @@ const Navbar = () => {
         <ul className='flex gap-20'>
           
           {/* //icons css */}
-        <li className='flex'>Home <IoIosArrowDown className='pl-[6%] pt-[8%] h-5.5'/></li>
-        <li className='flex'>Features <IoIosArrowDown className='pl-[6%] pt-[8%] h-5.5'/></li>
-        <li className='flex'>Contact <IoIosArrowDown className='pl-[6%] pt-[8%] h-5.5'/></li>
-        <li className='flex'>Register <IoIosArrowDown className='pl-[6%] pt-[8%] h-5.5'/></li>
+        <NavLink to="/Home"><li className='flex'>Home</li></NavLink>
+        <li className='flex'>Features </li>
+        <li className='flex'>Contact </li>
+        <li className='flex'>Register </li>
       </ul>
       </nav>
 
