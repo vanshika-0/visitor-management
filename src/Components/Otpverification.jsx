@@ -12,9 +12,11 @@ const Otpverification = () => {
   const [input, setinput] = useState(false);
   const [inputVal, setinputVal] = useState();
   const [trigger, settrigger] = useState(0);
+
+  const [pendingRequest, setpendingRequest] = useState(0);
  
 
-//curr timer show hra h pg reload pr bhi 
+//curr timer show hra h pg reload pr bhi ------------smjnaaa
 useEffect(() => {
   const savedEndTime = Number(localStorage.getItem("endTime"));
   let endTime;
@@ -47,6 +49,39 @@ useEffect(() => {
     localStorage.setItem("endTime", newEndTime);
     setTimer(10);
     settrigger(prev=>prev+1);  
+  }
+  function handleInstantvisit(){
+          //pass generate 
+          const pass={
+            Profile:localStorage.getItem("Photoo"),
+            name:localStorage.getItem("Name"),
+            email:localStorage.getItem("Email"),
+            PhoneNo:localStorage.getItem("Phone"),
+            time:new Date().toLocaleString(),
+            passId:"Pass" + Math.floor(Math.random()*1000000)
+          };
+           alert(
+    "🎟️ Visit Pass Generated!\n\n" +
+    "Profile:" + pass.Profile + "\n"+
+    "Name: " + pass.name + "\n" +
+    "Email: " + pass.email + "\n" +
+    "Time: " + pass.time + "\n" +
+    "Pass ID: " + pass.passId +"\n" +
+    "Phone NO:" + pass.PhoneNo );
+        }
+          
+
+  function handleBookvisit(){
+    ///toh request sent hjaegi admin ke pass or uska data save hjaega database mai -------backend
+      //jb bhi prev val ko upadte krna ho or udko local storgae p store krana ho toh aise kro ---always return in this syntax of setpending(prev=>{})
+    //-----------------------------
+
+
+      //setstate state chnge krega or re-render hne k bd hi chnges hnge jidhr bhi state use hui hai pr local m nhi hnge jb tk manulally chnge na kro useeffect gake ki jb bhi state chnge ho local storage p data chnges hjae 
+      // setpendingRequest(prev=>prev+1);
+      // localStorage.setItem("pendingrequest",JSON.stringify(pendingRequest));
+      
+      alert("Request sent successfully. Please wait for admin approval.");
   }
 
   return (
@@ -81,6 +116,11 @@ useEffect(() => {
             
             <button className='bg-[var(--bg-color)] w-70 ml-16  p-2 rounded hover:bg-[var(--hover-color)] text-[var(--primary-color)] mb-3' onClick={handleVerify}>Didn't got the code?Resend OTP</button></>
           )}
+
+          <div className='flex gap-5'>
+          <button onClick={handleInstantvisit} className='bg-[var(--bg-color)] w-25  p-1 rounded hover:bg-[var(--hover-color)] text-[var(--primary-color)] mb-3'>Instant Visit</button>
+          <button onClick={handleBookvisit} className='bg-[var(--bg-color)] w-20 p-1 mr-3 rounded hover:bg-[var(--hover-color)] text-[var(--primary-color)] mb-3'>Book Visit</button>
+          </div>
           
         </div>
     </div>

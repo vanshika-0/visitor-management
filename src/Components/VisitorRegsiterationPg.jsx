@@ -21,9 +21,10 @@ const VisitorRegsiterationPg = () => {
 
   
     function handleName(e){
-
     setName(e.target.value);
-    console.log(e.target.value);
+      //name local storage p store hgya ab usko is label s kisi bhi component m use kr skte hai
+    localStorage.setItem("Name",e.target.value);
+    
     }
     function handleEmail(e){
       //phle values set kro
@@ -31,10 +32,12 @@ const VisitorRegsiterationPg = () => {
     //ab email ko kisi bhi component m access kr skte hai,usko local storage pe store krdo
     localStorage.setItem("Email",e.target.value);
     }
-    function handlePhone(e){
 
+    function handlePhone(e){
     setPhone(e.target.value);
+    localStorage.setItem("Phone",e.target.value);
     }
+
     function handleReason(e){
 
     setReason(e.target.value);
@@ -44,12 +47,16 @@ const VisitorRegsiterationPg = () => {
     // setVisitdate(e.target.value);
     // }
     function handlemeet(e){
-
-    setMeet(e.target.value);
+    
+    localStorage.setItem("Meet",setMeet(e.target.value));
     }
+
     function handlephoto(e){
       //url created of photo
-      setphoto(URL.createObjectURL(e.target.files[0]));
+      const file=e.target.file[0];
+      const URL=URL.createObjectURL(file);
+      setphoto(URL)
+      localStorage.setItem("Photoo",URL);
     }
  
     function handleSubmit(e){
