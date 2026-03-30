@@ -48,26 +48,57 @@ const VisitorRegsiterationPg = () => {
     // }
     function handlemeet(e){
     
-    localStorage.setItem("Meet",setMeet(e.target.value));
+    setMeet(e.target.value);
+    localStorage.setItem("Meet", e.target.value);
     }
 
     function handlephoto(e){
       //url created of photo
-      const file=e.target.file[0];
+      const file = e.target.files[0];
       const URL=URL.createObjectURL(file);
       setphoto(URL)
       localStorage.setItem("Photoo",URL);
     }
  
-    function handleSubmit(e){
+    async function handleSubmit(e){
       e.preventDefault();
-      console.log("glo");
-      //timer val store krde
-      const endTime=Date.now() + 10000;
-      localStorage.setItem("endTime",endTime);
 
-      ////////////////////////////////
-      navigate("/otp");
+      const passId = Date.now().toString().slice(-6);
+      localStorage.setItem("passId", passId);
+
+      const formData = {
+        name: Name,
+        email: Email,
+        phone: Phone,
+        reason: Reason,
+        toMeet: ToMeet,
+        date: Visitdate,
+        passId
+      };
+
+      try {
+        const res = await fetch("http://localhost:5001/api/visitor/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await res.json();
+        console.log(data);
+
+        const endTime = Date.now() + 10000;
+        localStorage.setItem("endTime", endTime);
+
+        alert("Visitor Registered ✅");
+
+        navigate("/otp");
+
+      } catch (error) {
+        console.error(error);
+        alert("Error submitting form ❌");
+      }
     }
   return (
     

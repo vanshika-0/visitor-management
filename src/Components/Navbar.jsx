@@ -8,7 +8,7 @@ const Navbar = () => {
 
       
         <nav className='flex   gap-200 text-[var(--primary-color)] bg-[var(--bg-color)] p-2'>
-        <p className='pl-[6%]'>VISITERA</p>
+        <p className='pl-[6%]'>VISITRA</p>
         <ul className='flex gap-20'>
           
           {/* //icons css */}

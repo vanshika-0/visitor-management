@@ -1,6 +1,6 @@
 import React from 'react'
 import Navbar from './Navbar'
-import backgroundImage from 'C:/Users/lenovo/Downloads/Architectural abstract with dynamic figures.png';
+import backgroundImage from '../assets/landingPG.png';
 import { NavLink } from 'react-router-dom'
 
 const Landingpg = () => {

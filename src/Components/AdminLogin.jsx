@@ -10,23 +10,32 @@ const AdminLogin = () => {
   //use navigate ko store kr navigate mai
   const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
-    const Adminemail = "admin22117@gmail.com";
-    localStorage.setItem("Adminemail", Adminemail);
+    try {
+      const res = await fetch("http://localhost:5001/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: Email,
+          password: password
+        })
+      });
 
-    const Adminpassword = "123";
-    localStorage.setItem("Adminpassword", Adminpassword);
+      const data = await res.json();
 
-    if (password == Adminpassword && Email == Adminemail) {
-      navigate("/Admindashboard");
-    } else if (Email != Adminemail && password == Adminpassword) {
-      alert("Your email is incorrect");
-    } else if (Email == Adminemail && password != Adminpassword) {
-      alert("Your password is incorrect");
-    } else if (Email != Adminemail && password != Adminpassword) {
-      alert("Your email and password is incorrect");
+      if (data.status === "success") {
+        localStorage.setItem("isAdmin", "true");
+        navigate("/Admindashboard");
+      } else {
+        alert("Invalid email or password");
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Server error");
     }
   }
 
