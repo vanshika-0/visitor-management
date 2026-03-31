@@ -91,10 +91,9 @@ const VisitorRegsiterationPg = () => {
         const endTime = Date.now() + 10000;
         localStorage.setItem("endTime", endTime);
 
-        alert("Visitor Registered ✅");
+        //alert("Visitor Registered ✅");
 
-        navigate("/otp");
-
+       navigate("/otp", { state: { fromForm: true }, replace: true });
       } catch (error) {
         console.error(error);
         alert("Error submitting form ❌");
@@ -178,12 +177,12 @@ const VisitorRegsiterationPg = () => {
       className='w-[100%] mb-5 p-2 border rounded'
       required
       />
-      <label className='text-lg text-left mb-1' htmlFor="">To Meet:</label>
+      <label className='text-lg text-left mb-1' htmlFor="">Host Name:</label>
       <div className='relative w-full '>
         <FaUserGroup className='absolute text-sm mt-[1.5%] h-4 w-[35px]  ml-[95.3%]'/>
       <input type="text" 
       name='ToMeet'
-      placeholder='To Meet'
+      placeholder='Host Name'
       value={ToMeet}
       onChange={handlemeet}
       className='w-[100%] mb-6 p-2 border rounded'

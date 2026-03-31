@@ -8,17 +8,18 @@ const Adminnavbar = () => {
   const [showLogout, setShowLogout] = useState(false);
   const navigate=useNavigate();
   function handleLogout() {
-    navigate("/AdminLogin");
+    localStorage.removeItem("isAdmin");
+    navigate("/AdminLogin", { replace: true });
   }
 
 
   return (
     <div>
       <nav className="flex   gap-200 text-[var(--primary-color)] bg-[var(--bg-color)] p-2">
-        <p className="pl-[6%]">VISITERA</p>
+        <p className="pl-[6%]">VISITRA</p>
         <ul className="flex gap-20">
           {/* //icons css */}
-          <NavLink to="/Admindashboard">
+          <NavLink to="/">
             <li className="flex">Home</li>
           </NavLink>
 

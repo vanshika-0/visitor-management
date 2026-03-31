@@ -1,10 +1,12 @@
 import React from 'react'
 import Navbar from './Navbar'
 import { useState,useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { QRCode } from "react-qr-code";
 const Otpverification = () => {
+  const location = useLocation();
   //variable hai jisme eamail ko val store h jo user n dali hai
 
   const [Timer, setTimer] = useState(null);
@@ -19,6 +21,15 @@ const Otpverification = () => {
 
   const [enteredOtp, setEnteredOtp] = useState("");
   const [email] = useState(localStorage.getItem("Email"));
+
+  useEffect(() => {
+    if (localStorage.getItem("otpVerified")) {
+      localStorage.removeItem("otpVerified");
+    }
+  }, []);
+
+
+
   const [isVerified, setIsVerified] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" }); // type: success | error | info
   const [showSuccessAnim, setShowSuccessAnim] = useState(false);
@@ -89,6 +100,9 @@ async function handleVerifyOtp() {
 
     if (data.status === "verified") {
       setIsVerified(true);
+      localStorage.removeItem("Email");
+      localStorage.removeItem("otpAccess");
+      localStorage.setItem("otpVerified", "true");
       setMessage({ text: "OTP verified successfully ✔", type: "success" });
       setShowSuccessAnim(true);
       setTimeout(() => setShowSuccessAnim(false), 1500);
@@ -175,6 +189,10 @@ useEffect(() => {
   100% { opacity: 0; transform: translateY(-10px); }
 }
 `;
+
+  if (!location.state?.fromForm) {
+    return <Navigate to="/Visitor" replace />;
+  }
 
   return (
     <div>

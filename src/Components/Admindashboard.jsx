@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import React from 'react'
 import { MdOutlinePendingActions } from "react-icons/md";
 import Adminnavbar from './Adminnavbar';
@@ -7,24 +7,6 @@ import { RiGroupFill } from "react-icons/ri";
 
 
 const Admindashboard = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-  const checkAuth = () => {
-    const isAdmin = localStorage.getItem("isAdmin");
-    if (!isAdmin) {
-      navigate("/admin-login", { replace: true });
-    }
-  };
-
-  checkAuth();
-
-  window.addEventListener("popstate", checkAuth);
-
-  return () => {
-    window.removeEventListener("popstate", checkAuth);
-  };
-});
 
   const [visitors, setVisitors] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -44,10 +26,6 @@ const Admindashboard = () => {
       .catch(err => console.log(err));
   }, []);
 
-  if (!localStorage.getItem("isAdmin")) {
-    navigate("/admin-login", { replace: true });
-    return null;
-  }
 
   const filteredVisitors = visitors.filter(v => {
     if (filter === "all") return true;
@@ -55,7 +33,7 @@ const Admindashboard = () => {
   });
 
   const searchedVisitors = filteredVisitors.filter(v =>
-    v.name.toLowerCase().includes(search.toLowerCase())
+    (v.name || "").toLowerCase().includes(search.toLowerCase())
   );
 
   const sortedVisitors = [...searchedVisitors].sort((a, b) => {
@@ -113,6 +91,10 @@ const Admindashboard = () => {
       setVerifyResult({ type: "error" });
     }
   };
+
+  if (!localStorage.getItem("isAdmin")) {
+    return <Navigate to="/AdminLogin" replace />;
+  }
 
   return (
     <div>
@@ -250,11 +232,11 @@ const Admindashboard = () => {
             {paginatedVisitors.map((v, i) => (
               <tr key={i} className="text-center">
                 <td className="p-2 border">{v.passId}</td>
-                <td className="p-2 border">{v.name}</td>
-                <td className="p-2 border">{v.email}</td>
-                <td className="p-2 border">{v.phone}</td>
-                <td className="p-2 border">{v.toMeet}</td>
-                <td className="p-2 border">{v.date}</td>
+                <td className="p-2 border">{v.name || "-"}</td>
+                <td className="p-2 border">{v.email || "-"}</td>
+                <td className="p-2 border">{v.phone || "-"}</td>
+                <td className="p-2 border">{v.toMeet || "-"}</td>
+                <td className="p-2 border">{v.date || "-"}</td>
                 <td className="p-2 border">
                   <span className={
                     (v.status === "approved" ? "bg-green-200 text-green-800" :

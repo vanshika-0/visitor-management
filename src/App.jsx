@@ -1,4 +1,3 @@
-
 import './App.css'
 import Landingpg from './Components/Landingpg'
 import Otpverification from './Components/Otpverification'
@@ -8,6 +7,8 @@ import { createBrowserRouter,RouterProvider } from 'react-router-dom'
 import AdminLogin from './Components/AdminLogin'
 import Admindashboard from './Components/Admindashboard'
 import Adminprofile from './Components/Adminprofile'
+import Feature from './Components/Feature'
+import Howitworks from './Components/Howitworks'
 
 function App() {
   const router = createBrowserRouter([
@@ -27,7 +28,7 @@ function App() {
       path: "/otp",
       element: <Otpverification/>
     },
-      {
+    {
       path: "/AdminLogin",
       element: <AdminLogin/>
     },
@@ -38,8 +39,15 @@ function App() {
     {
       path: "/Adminprofile",
       element: <Adminprofile/>
+    },
+      {
+      path: "/Feature",
+      element: <Feature/>
+    },
+      {
+      path: "/Works",
+      element: <Howitworks/>
     }
-
   ])
 
   return (
