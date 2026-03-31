@@ -36,13 +36,78 @@ router.get("/all", async (req, res) => {
 
 router.put("/update/:id", async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, message } = req.body;
 
     const updatedVisitor = await Visitor.findByIdAndUpdate(
       req.params.id,
       { status },
       { new: true }
     );
+
+    // 🔥 send email ONLY when approved
+    if (status === "approved" && updatedVisitor && updatedVisitor.email) {
+      try {
+        await sendEmail(
+          updatedVisitor.email,
+          `
+<div style="font-family: Arial; padding: 10px;">
+
+<img src="https://github.com/vanshika-0/visitor-management/raw/main/visitra_logo.png" style="height:50px; margin-bottom:10px;" />
+
+<h3>Hello ${updatedVisitor.name || "User"}</h3>
+
+<p>Your visit request has been <b>APPROVED</b>.</p>
+
+<p><b>Host:</b> ${updatedVisitor.toMeet || "-"}</p>
+<p><b>Date:</b> ${updatedVisitor.date || "-"}</p>
+<p><b>Pass ID:</b> ${updatedVisitor.passId || "-"}</p>
+
+<br/>
+
+<p>Please carry your ID during the visit.</p>
+
+<p><b>VISITRA Team</b></p>
+
+</div>
+          `
+        );
+      } catch (emailErr) {
+        console.log("Email error:", emailErr);
+      }
+    }
+
+    // 🔥 send email when rejected
+    if (status === "rejected" && updatedVisitor && updatedVisitor.email) {
+      try {
+        await sendEmail(
+          updatedVisitor.email,
+          `
+<div style="font-family: Arial; padding: 10px;">
+
+<img src="https://github.com/vanshika-0/visitor-management/raw/main/visitra_logo.png" style="height:50px; margin-bottom:10px;" />
+
+<h3>Hello ${updatedVisitor.name || "User"}</h3>
+
+<p>Your visit request has been <b>REJECTED</b>.</p>
+
+<p><b>Reason:</b> ${message || "Not specified"}</p>
+
+<p><b>Host:</b> ${updatedVisitor.toMeet || "-"}</p>
+<p><b>Date:</b> ${updatedVisitor.date || "-"}</p>
+
+<br/>
+
+<p>For any queries, reply to this email.</p>
+
+<p><b>VISITRA Team</b></p>
+
+</div>
+          `
+        );
+      } catch (emailErr) {
+        console.log("Reject email error:", emailErr);
+      }
+    }
 
     res.json(updatedVisitor);
   } catch (err) {

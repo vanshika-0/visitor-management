@@ -13,11 +13,22 @@ const Admindashboard = () => {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("latest");
   const [page, setPage] = useState(1);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const itemsPerPage = 5;
   const totalVisits = visitors.length;
   const pendingRequests = visitors.filter(v => v.status === "pending").length;
+  const approvedCount = visitors.filter(v => v.status === "approved").length;
+  const rejectedCount = visitors.filter(v => v.status === "rejected").length;
+  const todayDate = new Date().toISOString().split("T")[0];
+  const todayVisits = visitors.filter(v => (v.date || "").startsWith(todayDate)).length;
   const [verifyId, setVerifyId] = useState("");
   const [verifyResult, setVerifyResult] = useState(null);
+  const [selectedVisitor, setSelectedVisitor] = useState(null);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [rejectVisitor, setRejectVisitor] = useState(null);
+  const [rejectMsg, setRejectMsg] = useState("");
+  
 
   useEffect(() => {
     fetch("http://localhost:5001/api/visitor/all")
@@ -28,8 +39,20 @@ const Admindashboard = () => {
 
 
   const filteredVisitors = visitors.filter(v => {
-    if (filter === "all") return true;
-    return (v.status || "pending") === filter;
+    const date = v.date || "";
+
+    if (filter === "today") {
+      return date.startsWith(todayDate);
+    }
+
+    if (filter === "range") {
+      const fromMatch = fromDate ? date >= fromDate : true;
+      const toMatch = toDate ? date <= toDate : true;
+      return fromMatch && toMatch;
+    }
+
+    const statusMatch = filter === "all" || (v.status || "pending") === filter;
+    return statusMatch;
   });
 
   const searchedVisitors = filteredVisitors.filter(v =>
@@ -49,22 +72,27 @@ const Admindashboard = () => {
     page * itemsPerPage
   );
 
-  const updateStatus = async (id, status) => {
+  const updateStatus = async (id, status, message = "") => {
+    // instant UI update (no wait)
+    setVisitors(prev =>
+      prev.map(v =>
+        v._id === id ? { ...v, status } : v
+      )
+    );
+
+    if (status === "approved") {
+      setSuccessMsg("Visitor Approved & Email Sent ✔");
+      setTimeout(() => setSuccessMsg(""), 2000);
+    }
+
     try {
       await fetch(`http://localhost:5001/api/visitor/update/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status, message })
       });
-
-      // update state instantly (live update)
-      setVisitors(prev =>
-        prev.map(v =>
-          v._id === id ? { ...v, status } : v
-        )
-      );
     } catch (err) {
       console.log(err);
     }
@@ -92,6 +120,32 @@ const Admindashboard = () => {
     }
   };
 
+  const exportCSV = () => {
+    const headers = ["Name", "Email", "Phone", "Host", "Date", "Status"];
+
+    const rows = sortedVisitors.map(v => [
+      v.name || "",
+      v.email || "",
+      v.phone || "",
+      v.toMeet || "",
+      v.date || "",
+      v.status || ""
+    ]);
+
+    const csvContent =
+      [headers, ...rows]
+        .map(e => e.join(","))
+        .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "visitors.csv";
+    a.click();
+  };
+
   if (!localStorage.getItem("isAdmin")) {
     return <Navigate to="/AdminLogin" replace />;
   }
@@ -106,26 +160,48 @@ const Admindashboard = () => {
         <h1 className='text-[200%] my-2 ml-[5%] font-bold'>Dashboard</h1>
         {/* //cards */}
 
-      <div className="card flex gap-20 mx-[5%] ">
+      <div className="card flex justify-between mx-[5%] gap-4">
 
         {/* //jo bhi user plan krega visit uski request idhr cnt hgi */}
-              <div className='bg-[var(--bg-color)] p-[3%] w-[25%] rounded flex'>
-                   < MdOutlinePendingActions className='text-[400%] mr-2'/>
-                    <div className='mt-0.5'>
-                    <h1 className='flex text-[120%] '>Pending Request</h1>
-                    <p>{pendingRequests}</p>
-                    </div>
-              </div>
-        
+        <div className='bg-[var(--bg-color)] p-[3%] w-[18%] rounded-xl shadow-md hover:shadow-lg transition flex'>
+          <MdOutlinePendingActions className='text-[400%] mr-2'/>
+          <div className='mt-0.5'>
+            <h1 className='flex text-[120%] '>Pending Request</h1>
+            <p>{pendingRequests}</p>
+          </div>
+        </div>
 
+        <div className='bg-[var(--bg-color)] p-[3%] w-[18%] rounded-xl shadow-md hover:shadow-lg transition flex'>
+          <RiGroupFill className='text-[400%] mr-2'/>
+          <div className='mt-1 ml-2'>
+            <h1 className='flex text-[120%]'>Total Visits</h1>
+            <p>{totalVisits}</p>
+          </div>
+        </div>
 
-                 <div className='bg-[var(--bg-color)] p-[3%] w-[25%] rounded flex'>
-                   < RiGroupFill className='text-[400%] mr-2'/>
-                    <div className='mt-1 ml-2'>
-                    <h1 className='flex text-[120%]'>Total Visits</h1>
-                    <p>{totalVisits}</p>
-                    </div>
-              </div>
+        <div className='bg-[var(--bg-color)] p-[3%] w-[18%] rounded-xl shadow-md hover:shadow-lg transition flex'>
+          <RiGroupFill className='text-[400%] mr-2'/>
+          <div className='mt-1 ml-2'>
+            <h1 className='flex text-[120%]'>Approved</h1>
+            <p>{approvedCount}</p>
+          </div>
+        </div>
+
+        <div className='bg-[var(--bg-color)] p-[3%] w-[18%] rounded-xl shadow-md hover:shadow-lg transition flex'>
+          <RiGroupFill className='text-[400%] mr-2'/>
+          <div className='mt-1 ml-2'>
+            <h1 className='flex text-[120%]'>Rejected</h1>
+            <p>{rejectedCount}</p>
+          </div>
+        </div>
+
+        <div className='bg-[var(--bg-color)] p-[3%] w-[18%] rounded-xl shadow-md hover:shadow-lg transition flex'>
+          <RiGroupFill className='text-[400%] mr-2'/>
+          <div className='mt-1 ml-2'>
+            <h1 className='flex text-[120%]'>Today Visits</h1>
+            <p>{todayVisits}</p>
+          </div>
+        </div>
 
       </div>
 
@@ -150,7 +226,25 @@ const Admindashboard = () => {
       <option value="pending">Pending</option>
       <option value="approved">Approved</option>
       <option value="rejected">Rejected</option>
+      <option value="today">Today</option>
+      <option value="range">Date Range</option>
     </select>
+    {filter === "range" && (
+      <>
+        <input
+          type="date"
+          value={fromDate}
+          onChange={(e) => setFromDate(e.target.value)}
+          className="border p-2 rounded text-sm"
+        />
+        <input
+          type="date"
+          value={toDate}
+          onChange={(e) => setToDate(e.target.value)}
+          className="border p-2 rounded text-sm"
+        />
+      </>
+    )}
     <select
       value={sort}
       onChange={(e) => setSort(e.target.value)}
@@ -172,6 +266,12 @@ const Admindashboard = () => {
       className="px-3 py-2 bg-blue-200 text-blue-800 rounded text-sm"
     >
       Verify
+    </button>
+    <button
+      onClick={exportCSV}
+      className="px-3 py-2 bg-green-200 text-green-800 rounded text-sm"
+    >
+      Export CSV
     </button>
   </div>
 </div>
@@ -206,10 +306,50 @@ const Admindashboard = () => {
     {verifyResult.type === "invalid" && <p>INVALID PASS</p>}
   </div>
 )}
-      <div className="mx-[5%] my-[2%] w-[90%] border-2 border-black p-5 overflow-x-auto">
+      {rejectVisitor && (
+        <div className="fixed top-0 right-0 h-full w-[360px] bg-white shadow-xl z-50 p-5 overflow-y-auto">
+
+          <button
+            onClick={() => {
+              setRejectVisitor(null);
+              setRejectMsg("");
+            }}
+            className="absolute top-3 right-3 text-gray-500"
+          >
+            ✕
+          </button>
+
+          <h2 className="text-lg font-bold mb-4">Reject Visitor</h2>
+
+          <textarea
+            placeholder="Optional message..."
+            value={rejectMsg}
+            onChange={(e) => setRejectMsg(e.target.value)}
+            className="w-full border p-2 rounded mb-3"
+          />
+
+          <button
+            onClick={() => {
+              updateStatus(rejectVisitor._id, "rejected", rejectMsg);
+              setRejectVisitor(null);
+              setRejectMsg("");
+            }}
+            className="bg-red-200 px-3 py-2 rounded w-full"
+          >
+            Send & Reject
+          </button>
+
+        </div>
+      )}
+      {successMsg && (
+        <div className="fixed top-5 right-5 bg-green-200 text-green-800 px-4 py-2 rounded shadow-lg z-50">
+          {successMsg}
+        </div>
+      )}
+      <div className="mx-[5%] my-[2%] w-[90%] border rounded-xl shadow-sm p-5 overflow-x-auto bg-white">
         <table className="w-full border">
           <thead>
-            <tr className="bg-gray-200">
+            <tr className="bg-gray-100 text-gray-700">
               <th className="p-2 border">Pass ID</th>
               <th className="p-2 border">Name</th>
               <th className="p-2 border">Email</th>
@@ -232,11 +372,22 @@ const Admindashboard = () => {
             {paginatedVisitors.map((v, i) => (
               <tr key={i} className="text-center">
                 <td className="p-2 border">{v.passId}</td>
-                <td className="p-2 border">{v.name || "-"}</td>
+                <td className="p-2 border relative">
+                  <span>{v.name || "-"}</span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setSelectedVisitor(v); }}
+                    className="absolute top-1 right-1 text-xs bg-gray-200 rounded-full w-5 h-5 flex items-center justify-center"
+                    title="View details"
+                  >
+                    i
+                  </button>
+                </td>
                 <td className="p-2 border">{v.email || "-"}</td>
                 <td className="p-2 border">{v.phone || "-"}</td>
                 <td className="p-2 border">{v.toMeet || "-"}</td>
-                <td className="p-2 border">{v.date || "-"}</td>
+                <td className="p-2 border">
+                  {v.date && /^\d{4}-\d{2}-\d{2}$/.test(v.date) ? v.date : "-"}
+                </td>
                 <td className="p-2 border">
                   <span className={
                     (v.status === "approved" ? "bg-green-200 text-green-800" :
@@ -268,7 +419,7 @@ const Admindashboard = () => {
                     Approve
                   </button>
                   <button
-                    onClick={() => updateStatus(v._id, "rejected")}
+                    onClick={() => setRejectVisitor(v)}
                     disabled={v.status === "rejected"}
                     className={`px-2 py-1 rounded ${
                       v.status === "rejected"
@@ -305,6 +456,41 @@ const Admindashboard = () => {
           </button>
         </div>
       </div>
+      {selectedVisitor && (
+        <div className="fixed top-0 right-0 h-full w-[360px] bg-white shadow-xl z-50 p-5 overflow-y-auto">
+          <button
+            onClick={() => setSelectedVisitor(null)}
+            className="absolute top-3 right-3 text-gray-500"
+          >
+            ✕
+          </button>
+
+          <h2 className="text-lg font-bold mb-4">Visitor Details</h2>
+
+          <div className="space-y-2 text-sm">
+            <p><strong>Name:</strong> {selectedVisitor.name || "-"}</p>
+            <p><strong>Email:</strong> {selectedVisitor.email || "-"}</p>
+            <p><strong>Phone:</strong> {selectedVisitor.phone || "-"}</p>
+            <p><strong>Host:</strong> {selectedVisitor.toMeet || "-"}</p>
+            <p><strong>Date:</strong> {selectedVisitor.date || "-"}</p>
+            <p>
+              <strong>Time:</strong> {
+                selectedVisitor.time
+                || (selectedVisitor.createdAt ? selectedVisitor.createdAt.split("T")[1]?.slice(0,5) : "-")
+              }
+            </p>
+            <p><strong>Status:</strong> {selectedVisitor.status || "pending"}</p>
+            <p><strong>Pass ID:</strong> {selectedVisitor.passId || "-"}</p>
+          </div>
+
+          <button
+            onClick={() => window.location.href = `mailto:${selectedVisitor.email}`}
+            className="mt-4 w-full py-2 bg-blue-200 text-blue-800 rounded"
+          >
+            Send Email
+          </button>
+        </div>
+      )}
     </div>
   )
 }
