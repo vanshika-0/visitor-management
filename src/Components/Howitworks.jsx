@@ -42,7 +42,7 @@ const Howitworks = () => {
   <Navbar/>
 
   <div className="text-center mt-10">
-    <h1 className="text-3xl font-bold">How VISITRA Works</h1>
+    <h1 className="text-3xl font-bold mt-[6%]">How VISITRA Works</h1>
     <p className="text-gray-600 mt-2">
       A complete smart flow from visitor registration to approval and secure entry.
     </p>

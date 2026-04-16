@@ -37,7 +37,7 @@ const features = [
     <Navbar/>
       
       <div className='my-10'>
-      <h1 className='text-[200%] font-bold text-center'>Secure & Smart Visitor Experience</h1>
+      <h1 className='text-[200%] mt-[6%] font-bold text-center'>Secure & Smart Visitor Experience</h1>
       <p className='text-center'>From registration to exit, manage every visitor seamlessly and securely.</p>
       </div>
 

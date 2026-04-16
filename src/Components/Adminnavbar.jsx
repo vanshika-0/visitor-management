@@ -3,6 +3,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import logo from "../assets/visitra_logo.png";
 
 const Adminnavbar = () => {
   const [showLogout, setShowLogout] = useState(false);
@@ -16,7 +17,10 @@ const Adminnavbar = () => {
   return (
     <div>
       <nav className="flex   gap-200 text-[var(--primary-color)] bg-[var(--bg-color)] p-2">
-        <p className="pl-[6%]">VISITRA</p>
+        <div className="pl-[6%] flex items-center gap-2">
+          <img src={logo} alt="logo" className="h-8 w-auto" />
+          {/* <span className="font-bold text-lg">VISITRA</span> */}
+        </div>
         <ul className="flex gap-20">
           {/* //icons css */}
           <NavLink to="/">

@@ -13,11 +13,9 @@ app.use(cors());
 app.use(express.json());
 
 // DB connect
-mongoose.connect(process.env.MONGO_URI, {
-  dbName: "visitra"
-})
-.then(() => console.log("MongoDB Connected to visitra DB"))
-.catch((err) => console.log(err));
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected to Atlas DB"))
+  .catch((err) => console.log("Mongo Error:", err));
 
 // routes
 app.use("/api/visitor", visitorRoutes);

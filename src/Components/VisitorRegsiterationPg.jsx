@@ -105,7 +105,7 @@ const VisitorRegsiterationPg = () => {
       <Navbar/>
       <div className='place-items-center '>
       <form onSubmit={handleSubmit} className='flex flex-col items-start w-[50%] my-8' action="Submit">
-        <h1 className='my-5 text-[180%] font-bold '>User Registeration Form</h1>
+        <h1 className='my-5 text-[180%] font-bold mt-[6%] '>User Registeration Form</h1>
       <label className='text-lg text-left mb-1' htmlFor="">Name: </label>
       {/* agr icon ko input k andr dena h toh wrapper div */}
       <div className='relative w-full '>
